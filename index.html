@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Daily HOP">
+<meta name="theme-color" content="#ff5c35">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Alex · Tracker Personal</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0f;
+    --surface: #161617;
+    --card: #1c1c1e;
+    --border: #2a2a2d;
+    --accent: #ff5c35;
+    --accent2: #ffcd3c;
+    --accent3: #4ade80;
+    --text: #f0f0f0;
+    --muted: #666;
+    --soft: #333;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: calc(var(--safe-top) + 24px) 16px calc(var(--safe-bottom) + 60px);
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: contain;
+  }
+
+  /* HEADER */
+  .header {
+    max-width: 480px;
+    margin: 0 auto 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .header-left h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 2px;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .header-left h1 span { color: var(--accent); }
+
+  .header-left p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .date-badge {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: right;
+  }
+
+  .date-badge .day {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .date-badge .month {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* STREAK BAR */
+  .streak-row {
+    max-width: 480px;
+    margin: 0 auto 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+
+  .streak-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    transition: border-color 0.2s;
+  }
+
+  .streak-card .icon { font-size: 20px; }
+
+  .streak-card .count {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
+    line-height: 1;
+  }
+
+  .streak-card .label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .streak-sport .count { color: var(--accent); }
+  .streak-read .count { color: var(--accent2); }
+  .streak-reel .count { color: var(--accent3); }
+
+  /* SECTION */
+  .section {
+    max-width: 480px;
+    margin: 0 auto 20px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-left: 2px;
+  }
+
+  /* HABIT CARDS */
+  .habit-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .habit-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--color);
+    border-radius: 3px 0 0 3px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .habit-card.done::before { opacity: 1; }
+  .habit-card:active { transform: scale(0.98); }
+
+  .habit-icon {
+    width: 42px; height: 42px;
+    background: var(--surface);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+
+  .habit-card.done .habit-icon {
+    background: color-mix(in srgb, var(--color) 15%, transparent);
+  }
+
+  .habit-info { flex: 1; }
+
+  .habit-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .habit-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .habit-check {
+    width: 26px; height: 26px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    font-size: 14px;
+  }
+
+  .habit-card.done .habit-check {
+    background: var(--color);
+    border-color: var(--color);
+  }
+
+  /* TASK LIST */
+  .task-list {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .task-item:last-child { border-bottom: none; }
+  .task-item:active { background: var(--surface); }
+
+  .task-check {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    transition: all 0.15s;
+  }
+
+  .task-item.done .task-check {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .task-text {
+    font-size: 14px;
+    flex: 1;
+    transition: all 0.15s;
+  }
+
+  .task-item.done .task-text {
+    color: var(--muted);
+    text-decoration: line-through;
+  }
+
+  .task-tag {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    background: var(--surface);
+    padding: 2px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ADD TASK */
+  .add-task-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .add-task-row input {
+    flex: 1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+
+  .add-task-row input:focus { border-color: var(--accent); }
+  .add-task-row input::placeholder { color: var(--muted); }
+
+  .add-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 11px 18px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    -webkit-appearance: none;
+  }
+
+  .add-btn:active { opacity: 0.8; }
+
+  /* AFIRMATIE */
+  .affirm-card {
+    max-width: 480px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #1a1208, #1c1c1e);
+    border: 1px solid #3a3010;
+    border-radius: 14px;
+    padding: 18px 20px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .affirm-card::after {
+    content: '❝';
+    position: absolute;
+    right: 16px; top: 10px;
+    font-size: 48px;
+    color: var(--accent2);
+    opacity: 0.15;
+    font-family: Georgia, serif;
+    line-height: 1;
+  }
+
+  .affirm-label {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 8px;
+  }
+
+  .affirm-text {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  .affirm-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* WEEK GRID */
+  .week-grid {
+    max-width: 480px;
+    margin: 0 auto 20px;
+  }
+
+  .week-row {
+    display: grid;
+    grid-template-columns: 70px repeat(7, 1fr);
+    gap: 4px;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .week-label {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .week-day {
+    height: 26px;
+    border-radius: 6px;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+
+  .week-day.active { border-color: transparent; }
+
+  .week-day-header {
+    font-size: 9px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+    text-align: center;
+    padding: 4px 0;
+    letter-spacing: 0.5px;
+  }
+
+  .week-day-header.today { color: var(--accent); }
+
+  /* PROGRESS */
+  .progress-section {
+    max-width: 480px;
+    margin: 0 auto 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .ring-wrap { position: relative; flex-shrink: 0; }
+  svg.ring { transform: rotate(-90deg); }
+
+  .ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ring-pct {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .ring-label {
+    font-size: 9px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .progress-info h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .progress-info p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* REEL */
+  .reel-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+  }
+
+  .reel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .reel-title { font-size: 15px; font-weight: 600; }
+
+  .reel-status {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+
+  .status-idea { background: #1a1a2e; color: #818cf8; border: 1px solid #312e81; }
+  .status-filmat { background: #1c1208; color: var(--accent2); border: 1px solid #3a2e0a; }
+  .status-montat { background: #0a1f10; color: var(--accent3); border: 1px solid #14532d; }
+  .status-publicat { background: #1f0a0a; color: #f87171; border: 1px solid #7f1d1d; }
+
+  .reel-meta { font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+  .reel-steps { display: flex; gap: 6px; margin-top: 10px; }
+
+  .reel-step {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .reel-step.done { background: var(--accent3); }
+  .reel-step.current { background: var(--accent2); }
+
+  .add-reel-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 13px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .add-reel-btn:active { border-color: var(--accent3); color: var(--accent3); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-width: 480px;
+    padding: 24px 24px calc(var(--safe-bottom) + 24px);
+    transform: translateY(20px);
+    transition: transform 0.2s;
+  }
+
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  .modal input, .modal select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    outline: none;
+    margin-bottom: 10px;
+    transition: border-color 0.15s;
+    -webkit-appearance: none;
+  }
+
+  .modal input:focus, .modal select:focus { border-color: var(--accent3); }
+  .modal select option { background: var(--card); }
+
+  .modal-btns { display: flex; gap: 10px; margin-top: 6px; }
+
+  .modal-btns button {
+    flex: 1;
+    padding: 14px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-cancel { background: var(--surface); color: var(--muted); border: 1px solid var(--border) !important; }
+  .btn-save { background: var(--accent3); color: #0a1f10; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: calc(var(--safe-bottom) + 24px);
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--text);
+    color: var(--bg);
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 200;
+    transition: transform 0.3s;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* INSTALL BANNER */
+  .install-banner {
+    max-width: 480px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #0a1f10, #1c1c1e);
+    border: 1px solid #14532d;
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: none;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .install-banner.visible { display: flex; }
+
+  .install-banner p { flex: 1; font-size: 13px; color: var(--text); line-height: 1.4; }
+  .install-banner p span { color: var(--accent3); font-weight: 600; }
+
+  .install-btn {
+    background: var(--accent3);
+    color: #0a1f10;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .install-dismiss {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 4px;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- INSTALL BANNER (Android) -->
+<div class="install-banner" id="installBanner">
+  <p>Adaugă <span>Daily HOP</span> pe ecranul principal pentru acces rapid.</p>
+  <button class="install-btn" id="installBtn">Instalează</button>
+  <button class="install-dismiss" onclick="dismissInstall()">×</button>
+</div>
+
+<div class="header">
+  <div class="header-left">
+    <h1>DAILY<span>.</span></h1>
+    <p id="dateLabel">Marți, 21 Aprilie</p>
+  </div>
+  <div class="date-badge">
+    <div class="day" id="dayNum">21</div>
+    <div class="month" id="monthLabel">Apr 2026</div>
+  </div>
+</div>
+
+<!-- PROGRESS ZI -->
+<div class="progress-section" id="progressSection">
+  <div class="ring-wrap">
+    <svg class="ring" width="80" height="80" viewBox="0 0 80 80">
+      <circle cx="40" cy="40" r="34" fill="none" stroke="#2a2a2d" stroke-width="6"/>
+      <circle cx="40" cy="40" r="34" fill="none" stroke="#ff5c35" stroke-width="6"
+        stroke-dasharray="213.6" stroke-dashoffset="213.6"
+        stroke-linecap="round" id="ringCircle" style="transition:stroke-dashoffset 0.5s ease"/>
+    </svg>
+    <div class="ring-center">
+      <span class="ring-pct" id="ringPct">0%</span>
+      <span class="ring-label">azi</span>
+    </div>
+  </div>
+  <div class="progress-info">
+    <h3 id="progressTitle">PORNEȘTI ZIUA 💪</h3>
+    <p id="progressSub">Bifează-ți primele obiceiuri și taskuri. Fiecare pas contează.</p>
+  </div>
+</div>
+
+<!-- AFIRMATIE ZILNICA -->
+<div class="affirm-card" onclick="nextAffirm()">
+  <div class="affirm-label">Afirmație zilnică</div>
+  <div class="affirm-text" id="affirmText">Sunt capabil. Ce construiesc prin Hands on Pixel are valoare reală.</div>
+  <div class="affirm-sub">↻ Atinge pentru alta</div>
+</div>
+
+<!-- STREAKURI -->
+<div class="streak-row">
+  <div class="streak-card streak-sport">
+    <span class="icon">🔥</span>
+    <span class="count" id="streakSport">0</span>
+    <span class="label">Sport</span>
+  </div>
+  <div class="streak-card streak-read">
+    <span class="icon">📚</span>
+    <span class="count" id="streakRead">0</span>
+    <span class="label">Citit</span>
+  </div>
+  <div class="streak-card streak-reel">
+    <span class="icon">🎬</span>
+    <span class="count" id="streakReel">0</span>
+    <span class="label">Reeluri</span>
+  </div>
+</div>
+
+<!-- OBICEIURI -->
+<div class="section">
+  <div class="section-title">Obiceiuri zilnice</div>
+
+  <div class="habit-card" id="h-sport" style="--color: #ff5c35" onclick="toggleHabit('sport')">
+    <div class="habit-icon">🏃</div>
+    <div class="habit-info">
+      <div class="habit-name">Sport / Mișcare</div>
+      <div class="habit-sub">min. 30 min · cardio, sală, plimbare</div>
+    </div>
+    <div class="habit-check" id="hc-sport"></div>
+  </div>
+
+  <div class="habit-card" id="h-read" style="--color: #ffcd3c" onclick="toggleHabit('read')">
+    <div class="habit-icon">📖</div>
+    <div class="habit-info">
+      <div class="habit-name">Citit</div>
+      <div class="habit-sub">min. 15 min · orice carte / articol</div>
+    </div>
+    <div class="habit-check" id="hc-read"></div>
+  </div>
+
+  <div class="habit-card" id="h-focus" style="--color: #818cf8" onclick="toggleHabit('focus')">
+    <div class="habit-icon">🎯</div>
+    <div class="habit-info">
+      <div class="habit-name">Bloc de focus</div>
+      <div class="habit-sub">1–2 ore fără distracții · task principal</div>
+    </div>
+    <div class="habit-check" id="hc-focus"></div>
+  </div>
+
+  <div class="habit-card" id="h-reel" style="--color: #4ade80" onclick="toggleHabit('reel')">
+    <div class="habit-icon">📲</div>
+    <div class="habit-info">
+      <div class="habit-name">Lucrat la Reel HOP</div>
+      <div class="habit-sub">filmat, montat sau publicat</div>
+    </div>
+    <div class="habit-check" id="hc-reel"></div>
+  </div>
+
+</div>
+
+<!-- SAPTAMANA -->
+<div class="week-grid">
+  <div class="section-title" style="max-width:480px; margin-bottom:8px">Săptămâna aceasta</div>
+  <div class="week-row" id="weekHeader"><div></div></div>
+  <div class="week-row" id="weekSport"><div class="week-label">🏃 Sport</div></div>
+  <div class="week-row" id="weekRead"><div class="week-label">📖 Citit</div></div>
+  <div class="week-row" id="weekFocus"><div class="week-label">🎯 Focus</div></div>
+  <div class="week-row" id="weekReel"><div class="week-label">📲 Reel</div></div>
+</div>
+
+<!-- TASKURI ZILNICE -->
+<div class="section">
+  <div class="section-title">Taskuri azi</div>
+  <div class="task-list" id="taskList"></div>
+  <div class="add-task-row">
+    <input type="text" id="taskInput" placeholder="Task nou…" onkeydown="if(event.key==='Enter') addTask()">
+    <button class="add-btn" onclick="addTask()">+ Adaugă</button>
+  </div>
+</div>
+
+<!-- REELURI HOP -->
+<div class="section">
+  <div class="section-title">Pipeline Reeluri · Hands on Pixel</div>
+  <div id="reelList"></div>
+  <button class="add-reel-btn" onclick="openReelModal()">
+    <span>+</span> Reel nou
+  </button>
+</div>
+
+<!-- MODAL REEL -->
+<div class="modal-overlay" id="reelModal">
+  <div class="modal">
+    <h3>REEL NOU</h3>
+    <input type="text" id="reelTitle" placeholder="Subiect reel (ex: Cum fac un packshot)">
+    <select id="reelStatus">
+      <option value="idea">💡 Idee</option>
+      <option value="filmat">🎥 Filmat</option>
+      <option value="montat">✂️ Montat</option>
+      <option value="publicat">🚀 Publicat</option>
+    </select>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeReelModal()">Anulează</button>
+      <button class="btn-save" onclick="saveReel()">Salvează</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ---- PWA: Service Worker ----
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
+
+  // ---- PWA: Install prompt ----
+  let deferredPrompt = null;
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!localStorage.getItem('installDismissed')) {
+      document.getElementById('installBanner').classList.add('visible');
+    }
+  });
+
+  document.getElementById('installBtn').addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('installBanner').classList.remove('visible');
+  });
+
+  function dismissInstall() {
+    document.getElementById('installBanner').classList.remove('visible');
+    localStorage.setItem('installDismissed', '1');
+  }
+
+  // ---- STATE ----
+  const TODAY = new Date();
+  const TODAYkey = TODAY.toISOString().split('T')[0];
+
+  function loadState() {
+    try { return JSON.parse(localStorage.getItem('hopTracker') || '{}'); } catch { return {}; }
+  }
+
+  function saveState(s) {
+    localStorage.setItem('hopTracker', JSON.stringify(s));
+  }
+
+  let state = loadState();
+  if (!state.habits) state.habits = {};
+  if (!state.tasks) state.tasks = {};
+  if (!state.reels) state.reels = [];
+  if (!state.streaks) state.streaks = { sport: 0, read: 0, reel: 0 };
+
+  const affirmations = [
+    "Sunt capabil. Ce construiesc prin Hands on Pixel are valoare reală.",
+    "Fiecare reel publicat mă aduce mai aproape de clienți care au nevoie de mine.",
+    "Disciplina mică de azi construiește identitatea puternică de mâine.",
+    "Nu am nevoie de condiții perfecte. Am nevoie de acțiune.",
+    "Sunt singurul din echipă — asta înseamnă că fiecare decizie e a mea.",
+    "Progresul meu nu se vede imediat. Dar se acumulează, zilnic.",
+    "Oamenii care mă văd pe social media vor să cumpere de la cineva real.",
+    "Sport, focus, reel. Ziua mea e sub controlul meu.",
+    "Mă compar doar cu cine eram ieri.",
+    "Fiecare client mulțumit e dovada că știu ce fac."
+  ];
+
+  let affirmIdx = Math.floor(Math.random() * affirmations.length);
+
+  function init() {
+    updateDate();
+    buildWeekGrid();
+    renderHabits();
+    renderTasks();
+    renderReels();
+    updateProgress();
+    updateStreaks();
+  }
+
+  function updateDate() {
+    const days = ['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
+    const months = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+    const short = ['Ian','Feb','Mar','Apr','Mai','Iun','Iul','Aug','Sep','Oct','Nov','Dec'];
+    document.getElementById('dateLabel').textContent = `${days[TODAY.getDay()]}, ${TODAY.getDate()} ${months[TODAY.getMonth()]}`;
+    document.getElementById('dayNum').textContent = TODAY.getDate();
+    document.getElementById('monthLabel').textContent = `${short[TODAY.getMonth()]} ${TODAY.getFullYear()}`;
+  }
+
+  function toggleHabit(id) {
+    if (!state.habits[TODAYkey]) state.habits[TODAYkey] = {};
+    state.habits[TODAYkey][id] = !state.habits[TODAYkey][id];
+    saveState(state);
+    renderHabits();
+    updateProgress();
+    updateStreaks();
+    buildWeekGrid();
+    showToast(state.habits[TODAYkey][id] ? '✅ Bifat!' : 'Debifat');
+  }
+
+  function renderHabits() {
+    const today = state.habits[TODAYkey] || {};
+    ['sport','read','focus','reel'].forEach(id => {
+      const card = document.getElementById('h-' + id);
+      const check = document.getElementById('hc-' + id);
+      if (today[id]) {
+        card.classList.add('done');
+        check.textContent = '✓';
+      } else {
+        card.classList.remove('done');
+        check.textContent = '';
+      }
+    });
+  }
+
+  function buildWeekGrid() {
+    const dayNames = ['Lu','Ma','Mi','Jo','Vi','Sâ','Du'];
+    const header = document.getElementById('weekHeader');
+    while (header.children.length > 1) header.removeChild(header.lastChild);
+
+    const monday = getMonday(TODAY);
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const el = document.createElement('div');
+      el.className = 'week-day-header';
+      el.textContent = dayNames[i];
+      if (d.toDateString() === TODAY.toDateString()) el.classList.add('today');
+      header.appendChild(el);
+    }
+
+    const colors = { sport:'#ff5c35', read:'#ffcd3c', focus:'#818cf8', reel:'#4ade80' };
+
+    ['sport','read','focus','reel'].forEach(habit => {
+      const row = document.getElementById('week' + capitalize(habit));
+      while (row.children.length > 1) row.removeChild(row.lastChild);
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const key = d.toISOString().split('T')[0];
+        const done = state.habits[key] && state.habits[key][habit];
+        const el = document.createElement('div');
+        el.className = 'week-day' + (done ? ' active' : '');
+        if (done) el.style.background = colors[habit];
+        row.appendChild(el);
+      }
+    });
+  }
+
+  function getMonday(d) {
+    const dt = new Date(d);
+    const day = dt.getDay();
+    const diff = dt.getDate() - day + (day === 0 ? -6 : 1);
+    dt.setDate(diff);
+    return dt;
+  }
+
+  function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  function renderTasks() {
+    const list = document.getElementById('taskList');
+    const tasks = state.tasks[TODAYkey] || [];
+    if (tasks.length === 0) {
+      list.innerHTML = '<div style="padding:16px;color:var(--muted);font-size:13px;font-family:DM Mono,monospace;">Niciun task adăugat încă…</div>';
+      return;
+    }
+    list.innerHTML = tasks.map((t, i) => `
+      <div class="task-item ${t.done ? 'done' : ''}" onclick="toggleTask(${i})">
+        <div class="task-check">${t.done ? '✓' : ''}</div>
+        <div class="task-text">${t.text}</div>
+        ${t.tag ? `<div class="task-tag">${t.tag}</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  function toggleTask(i) {
+    if (!state.tasks[TODAYkey]) state.tasks[TODAYkey] = [];
+    state.tasks[TODAYkey][i].done = !state.tasks[TODAYkey][i].done;
+    saveState(state);
+    renderTasks();
+    updateProgress();
+  }
+
+  function addTask() {
+    const inp = document.getElementById('taskInput');
+    const text = inp.value.trim();
+    if (!text) return;
+    if (!state.tasks[TODAYkey]) state.tasks[TODAYkey] = [];
+    let tag = '';
+    if (/reel|film|mont|insta/i.test(text)) tag = 'HOP';
+    else if (/client|ofert|mail|mesaj/i.test(text)) tag = 'Client';
+    else if (/shopify|site|cod|deploy/i.test(text)) tag = 'Dev';
+    else if (/foto|produs|packshot/i.test(text)) tag = 'Foto';
+    state.tasks[TODAYkey].push({ text, done: false, tag });
+    saveState(state);
+    inp.value = '';
+    renderTasks();
+    updateProgress();
+    showToast('Task adăugat ✓');
+  }
+
+  const statusLabels = { idea: '💡 Idee', filmat: '🎥 Filmat', montat: '✂️ Montat', publicat: '🚀 Publicat' };
+  const statusClass = { idea: 'status-idea', filmat: 'status-filmat', montat: 'status-montat', publicat: 'status-publicat' };
+  const statusStep = { idea: 0, filmat: 1, montat: 2, publicat: 3 };
+
+  function renderReels() {
+    const list = document.getElementById('reelList');
+    if (state.reels.length === 0) {
+      list.innerHTML = '<div style="padding:12px 0 8px;color:var(--muted);font-size:13px;font-family:DM Mono,monospace;text-align:center;">Niciun reel în pipeline…</div>';
+      return;
+    }
+    list.innerHTML = state.reels.map((r, i) => {
+      const step = statusStep[r.status];
+      const steps = [0,1,2,3].map(s => `<div class="reel-step ${s < step ? 'done' : s === step ? 'current' : ''}" onclick="advanceReel(${i},event)"></div>`).join('');
+      return `
+        <div class="reel-card">
+          <div class="reel-header">
+            <div class="reel-title">${r.title}</div>
+            <div class="reel-status ${statusClass[r.status]}">${statusLabels[r.status]}</div>
+          </div>
+          <div class="reel-meta">${r.date} · Idee → Filmat → Montat → Publicat</div>
+          <div class="reel-steps">${steps}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function advanceReel(i, e) {
+    e.stopPropagation();
+    const order = ['idea','filmat','montat','publicat'];
+    const cur = order.indexOf(state.reels[i].status);
+    if (cur < order.length - 1) {
+      state.reels[i].status = order[cur + 1];
+      saveState(state);
+      renderReels();
+      showToast('Reel → ' + statusLabels[state.reels[i].status]);
+    }
+  }
+
+  function openReelModal() {
+    document.getElementById('reelModal').classList.add('open');
+    setTimeout(() => document.getElementById('reelTitle').focus(), 200);
+  }
+
+  function closeReelModal() {
+    document.getElementById('reelModal').classList.remove('open');
+  }
+
+  function saveReel() {
+    const title = document.getElementById('reelTitle').value.trim();
+    const status = document.getElementById('reelStatus').value;
+    if (!title) { showToast('Adaugă un subiect!'); return; }
+    state.reels.unshift({
+      title, status,
+      date: TODAY.toLocaleDateString('ro-RO', { day: 'numeric', month: 'short' })
+    });
+    saveState(state);
+    closeReelModal();
+    renderReels();
+    document.getElementById('reelTitle').value = '';
+    showToast('Reel adăugat 🎬');
+  }
+
+  function updateProgress() {
+    const today = state.habits[TODAYkey] || {};
+    const habits = ['sport','read','focus','reel'];
+    const donHabits = habits.filter(h => today[h]).length;
+    const pct = Math.round((donHabits / habits.length) * 100);
+    const circumference = 213.6;
+    document.getElementById('ringCircle').style.strokeDashoffset = circumference - (pct / 100) * circumference;
+    document.getElementById('ringPct').textContent = pct + '%';
+    const titles = ['PORNEȘTI ZIUA 💪','MOMENTUM 🚀','LA JUMĂTATE ⚡','APROAPE ACOLO 🔥','ZI COMPLETĂ! 🏆'];
+    const subs = [
+      'Bifează-ți primele obiceiuri. Fiecare pas contează.',
+      'Continuă! Obiceiurile de azi construiesc omul de mâine.',
+      'La jumătate! Ritmul tău e solid.',
+      'Aproape perfect. Un pic de focus și ai terminat strong.',
+      'Zi completă! Mâine facem la fel.'
+    ];
+    const idx = Math.min(Math.floor(pct / 25), 4);
+    document.getElementById('progressTitle').textContent = titles[idx];
+    document.getElementById('progressSub').textContent = subs[idx];
+  }
+
+  function updateStreaks() {
+    ['sport','read','reel'].forEach(id => {
+      let streak = 0;
+      const d = new Date(TODAY);
+      while (true) {
+        const key = d.toISOString().split('T')[0];
+        if (state.habits[key] && state.habits[key][id]) {
+          streak++;
+          d.setDate(d.getDate() - 1);
+        } else break;
+      }
+      document.getElementById('streak' + capitalize(id)).textContent = streak;
+    });
+  }
+
+  function nextAffirm() {
+    affirmIdx = (affirmIdx + 1) % affirmations.length;
+    document.getElementById('affirmText').textContent = affirmations[affirmIdx];
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  document.getElementById('reelModal').addEventListener('click', function(e) {
+    if (e.target === this) closeReelModal();
+  });
+
+  init();
+</script>
+</body>
+</html>
